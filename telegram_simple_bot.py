@@ -3,7 +3,7 @@
 Created on Fri Feb 22 13:57:57 2018
 
 @author: RIP-OpanasenkoVG
-
+# бот для Telegram
 """
 
 if __name__ == '__main__':
