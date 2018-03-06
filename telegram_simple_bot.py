@@ -12,6 +12,10 @@ import requests
 import pymorphy2
 
 
+
+url = "https://api.telegram.org/bot531357875:AAHi4QESk1pkUkuZ6paId7ef1xqliZqqtMo/"
+VIEZD_DATE = datetime.datetime(2018, 3, 15, hour=20, minute=30, second=0)
+
 def get_updates_json(request, offset):
     params = {"timeout": 100, "offset": offset}
     response = requests.get(request + "getUpdates", data=params)
@@ -38,7 +42,8 @@ def send_mess(chat, text):
 def make_response (msg):
     chat_id = get_chat_id(msg)
     answer = make_answer(msg["message"])
-    print("Received: " + msg["message"]["text"])
+    username = msg["message"]["from"].get("username", "anonymus")
+    print("Received {} from {}".format(msg["message"]["text"], username))
     send_mess(chat_id, answer)
 
 def is_latin_text(text):
@@ -47,28 +52,32 @@ def is_latin_text(text):
 def make_answer(msg):
     vowels = set("уеыаоэяиюё")
     wrds = list(re.findall("\w+", msg["text"], re.UNICODE))
+    if "выезд" in msg["text"].lower():
+        return time_to_viezd()
     if "RU" in msg["from"]["language_code"] and not is_latin_text(wrds[len(wrds)-1]):
         answer = "Хуйнаны, а не " + msg["text"].lower()
     else:
         answer = "Хуйнаны. Пиши как русский, епископ!"
     return answer
 
+def time_to_viezd():
+    now = datetime.datetime.now()
+    date_diff = datetime.timedelta()
+    date_diff = VIEZD_DATE - now
+    date_diff_str = str(date_diff.days) + " " + day_str.make_agree_with_number(date_diff.days).word
+    text = "Братка, до выезда всего " + date_diff_str
+    return text
+
 def send_updates(sent_updates):
     now = datetime.datetime.now()
     if now.hour >= 11 and now.minute >= 0 and now.second >= 0 and not sent_updates:
         for usr in all_users:
-            date_diff = datetime.timedelta()
-            date_diff = VIEZD_DATE - now
-            date_diff_str = str(date_diff.days) + " " + day_str.make_agree_with_number(date_diff.days).word
-            text = "Братка, до выезда всего " + date_diff_str
-            send_mess(usr, text)
+            send_mess(usr, time_to_viezd())
         sent_updates = True
     if now.hour == 0:
         sent_updates = False
     return sent_updates
 
-url = "https://api.telegram.org/bot531357875:AAHi4QESk1pkUkuZ6paId7ef1xqliZqqtMo/"
-VIEZD_DATE = datetime.datetime(2018, 3, 15, hour=20, minute=30, second=0)
 morph = pymorphy2.MorphAnalyzer()
 day_str = morph.parse("день")[0]
 sent_updates = False
