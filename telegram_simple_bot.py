@@ -2,7 +2,7 @@
 """
 Created on Fri Feb 22 13:57:57 2018
 
-@author: RIP-OpanasenkoVG
+@author: vova_cmc
 """
 
 import datetime
